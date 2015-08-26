@@ -1,0 +1,17 @@
+Recovering a single node of a cluster – Windows 2008:
+Add post power-on steps (In a recovery plan, right-click the VM, “Configure”) – Use “Command on Recovered VM”
+
+Name			      Content
+Force Quorum  	C:\Windows\system32\cmd.exe /c "net stop clussvc & net start clussvc /forcequorum"
+Set Quorum Mode	C:\Windows\system32\cluster.exe /QUORUM:"Disk Q:" /DISKONLY
+
+(replace "Disk Q:" with the actual cluster physical disk resource name you want to use as the witness disk)
+
+Recovering a single node of a cluster – Windows 2008R2 or later:
+Add post power-on steps (In a recovery plan, right-click the VM, “Configure”) – Use “Command on Recovered VM”
+
+Name			      Content
+Force Quorum	  C:\Windows\system32\cmd.exe /c "net stop clussvc & net start clussvc /forcequorum"
+Set Quorum Mode	C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command "import-module failoverclusters ; $quorum=Get-ClusterQuorum -Cluster . ; $witnessdisk=$quorum.QuorumResource ; Set-ClusterQuorum -Cluster . -diskonly $witnessdisk"
+
+(the powershell commands find the current witness disk, in the disk+node majority quorum mode, and use it for the disk-only quorum mode)
